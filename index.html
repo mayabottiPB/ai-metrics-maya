@@ -410,9 +410,9 @@
       <div class="summary-sub" contenteditable="false" data-key="costSavedSub" data-placeholder="subtitle">annualized estimate</div>
     </div>
     <div class="summary-card pink">
-      <div class="summary-label">People Trained</div>
-      <div class="summary-value" contenteditable="false" data-key="peopleTrained" data-placeholder="0">34</div>
-      <div class="summary-sub" contenteditable="false" data-key="peopleTrainedSub" data-placeholder="subtitle">across departments</div>
+      <div class="summary-label">% Gemini Users</div>
+      <div class="summary-value" contenteditable="false" data-key="geminiUsers" data-placeholder="0%">0%</div>
+      <div class="summary-sub" contenteditable="false" data-key="geminiUsersSub" data-placeholder="subtitle">of company</div>
     </div>
   </section>
 
@@ -678,7 +678,7 @@
       lastUpdated: document.querySelector('[data-key="lastUpdated"]').textContent,
     };
     ['totalInitiatives','totalInitiativesSub','hoursSaved','hoursSavedSub',
-     'costSaved','costSavedSub','peopleTrained','peopleTrainedSub'].forEach(k => {
+     'costSaved','costSavedSub','geminiUsers','geminiUsersSub'].forEach(k => {
       data.summary[k] = document.querySelector('[data-key="'+k+'"]').textContent;
     });
     localStorage.setItem('pbAIMetrics', JSON.stringify(data));
