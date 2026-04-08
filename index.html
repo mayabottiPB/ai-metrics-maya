@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI at Psycho Bunny — Maya's Initiatives</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a22;
+      --surface2: #22222e;
+      --border: #2e2e3e;
+      --accent: #7c6af5;
+      --accent2: #e25c8a;
+      --accent3: #3ecfb2;
+      --text: #e8e8f0;
+      --muted: #888899;
+      --green: #3ecfb2;
+      --gold: #f5c542;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Header ── */
+    .header {
+      max-width: 1100px;
+      margin: 0 auto 48px;
+    }
+    .header-meta {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .header h1 {
+      font-size: clamp(26px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    .header h1 span { color: var(--accent); }
+    .header-sub {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 560px;
+      line-height: 1.6;
+    }
+    .last-updated {
+      display: inline-block;
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── Summary Bar ── */
+    .summary {
+      max-width: 1100px;
+      margin: 0 auto 56px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .summary-card.purple::before { background: var(--accent); }
+    .summary-card.pink::before   { background: var(--accent2); }
+    .summary-card.teal::before   { background: var(--accent3); }
+    .summary-card.gold::before   { background: var(--gold); }
+
+    .summary-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .summary-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .summary-card.purple .summary-value { color: var(--accent); }
+    .summary-card.pink   .summary-value { color: var(--accent2); }
+    .summary-card.teal   .summary-value { color: var(--accent3); }
+    .summary-card.gold   .summary-value { color: var(--gold); }
+
+    .summary-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Section ── */
+    .section {
+      max-width: 1100px;
+      margin: 0 auto 64px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .section-icon.tools  { background: rgba(124,106,245,0.15); }
+    .section-icon.edu    { background: rgba(226,92,138,0.15); }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .section-count {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Initiative Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .card-status {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .status-live     { background: rgba(62,207,178,0.15); color: var(--accent3); border: 1px solid rgba(62,207,178,0.3); }
+    .status-progress { background: rgba(245,197,66,0.15); color: var(--gold);    border: 1px solid rgba(245,197,66,0.3); }
+    .status-planned  { background: rgba(136,136,153,0.15); color: var(--muted);  border: 1px solid rgba(136,136,153,0.3); }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .metric-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+    .metric-pill .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-time   { background: var(--accent); }
+    .dot-cost   { background: var(--accent3); }
+    .dot-rev    { background: var(--gold); }
+    .dot-people { background: var(--accent2); }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      gap: 8px;
+    }
+    .card-date {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 5px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(124,106,245,0.3);
+      background: rgba(124,106,245,0.08);
+      transition: background 0.2s;
+    }
+    .card-link:hover { background: rgba(124,106,245,0.18); }
+    .card-link svg { width: 11px; height: 11px; }
+
+    /* ── Footer ── */
+    .footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════ HEADER ══════════ -->
+  <header class="header">
+    <div class="header-meta">Psycho Bunny · AI Strategy</div>
+    <h1>AI at <span>Psycho Bunny</span></h1>
+    <p class="header-sub">A running record of every AI tool built and training initiative led — tracked against real business impact.</p>
+    <span class="last-updated">Last updated: April 2026</span>
+  </header>
+
+  <!-- ══════════ SUMMARY ══════════ -->
+  <!--
+    HOW TO UPDATE SUMMARY:
+    Edit the numbers inside .summary-value and the labels inside .summary-sub below.
+  -->
+  <section class="summary" id="summary">
+
+    <div class="summary-card purple">
+      <div class="summary-label">Total Initiatives</div>
+      <div class="summary-value">6</div>
+      <div class="summary-sub">tools + programs</div>
+    </div>
+
+    <div class="summary-card teal">
+      <div class="summary-label">Hours Saved / Month</div>
+      <div class="summary-value">~85h</div>
+      <div class="summary-sub">across all tools</div>
+    </div>
+
+    <div class="summary-card gold">
+      <div class="summary-label">Est. Cost Saved / Yr</div>
+      <div class="summary-value">$42K</div>
+      <div class="summary-sub">annualized estimate</div>
+    </div>
+
+    <div class="summary-card pink">
+      <div class="summary-label">People Trained</div>
+      <div class="summary-value">34</div>
+      <div class="summary-sub">across departments</div>
+    </div>
+
+  </section>
+
+  <!-- ══════════ SECTION 1: AI TOOLS ══════════ -->
+  <!--
+    HOW TO ADD A TOOL:
+    Copy one <div class="card"> block below and paste it inside the .grid div.
+    Update the title, description, metrics, date, and link.
+    Status options: status-live | status-progress | status-planned
+    Metric dot colors: dot-time (purple) | dot-cost (teal) | dot-rev (gold) | dot-people (pink)
+    Set href="#" if no link yet.
+  -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon tools">🛠</div>
+      <h2 class="section-title">AI Tools Built</h2>
+      <span class="section-count">3 initiatives</span>
+    </div>
+
+    <div class="grid">
+
+      <!-- CARD: Freight Invoice Analyzer -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">Freight Invoice Analyzer</div>
+          <span class="card-status status-live">Live</span>
+        </div>
+        <p class="card-desc">Uploads carrier invoices (PDF/image) and automatically extracts cost breakdowns — delivery, accessorial, duties, taxes — with per-order metrics. Eliminates manual data entry for logistics finance.</p>
+        <div class="metrics">
+          <span class="metric-pill"><span class="dot dot-time"></span> ~8h saved/month</span>
+          <span class="metric-pill"><span class="dot dot-cost"></span> Reduces errors</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-date">Launched Feb 2026</span>
+          <a class="card-link" href="#">
+            Open Tool
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10L10 2M10 2H5M10 2v5"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- CARD: Example Tool 2 — replace with your real tool -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">Your Next Tool</div>
+          <span class="card-status status-progress">In Progress</span>
+        </div>
+        <p class="card-desc">Describe what this tool does, who uses it, and what problem it solves. Keep it to 2–3 sentences so it reads well on a summary slide.</p>
+        <div class="metrics">
+          <span class="metric-pill"><span class="dot dot-time"></span> TBD</span>
+          <span class="metric-pill"><span class="dot dot-rev"></span> Revenue impact TBD</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-date">Est. Q2 2026</span>
+          <a class="card-link" href="#">
+            View Details
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10L10 2M10 2H5M10 2v5"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- CARD: Example Tool 3 — replace with your real tool -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">Another Tool</div>
+          <span class="card-status status-planned">Planned</span>
+        </div>
+        <p class="card-desc">Placeholder for an upcoming initiative. Add the real description once scoped.</p>
+        <div class="metrics">
+          <span class="metric-pill"><span class="dot dot-cost"></span> Cost saving TBD</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-date">Q3 2026</span>
+          <a class="card-link" href="#">
+            View Spec
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10L10 2M10 2H5M10 2v5"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════ SECTION 2: AI TRAINING ══════════ -->
+  <!--
+    Same card structure as above. Add/remove cards to match your real programs.
+  -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon edu">🎓</div>
+      <h2 class="section-title">AI Training &amp; Education</h2>
+      <span class="section-count">3 initiatives</span>
+    </div>
+
+    <div class="grid">
+
+      <!-- CARD: Example Training 1 -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">Prompt Engineering Workshop</div>
+          <span class="card-status status-live">Live</span>
+        </div>
+        <p class="card-desc">Hands-on workshop teaching teams how to write effective prompts for ChatGPT, Claude, and Gemini. Covers use cases for marketing copy, operations, and customer service.</p>
+        <div class="metrics">
+          <span class="metric-pill"><span class="dot dot-people"></span> 18 people trained</span>
+          <span class="metric-pill"><span class="dot dot-time"></span> ~5h saved/person/wk</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-date">Feb 2026 · 2 sessions</span>
+          <a class="card-link" href="#">
+            View Slides
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10L10 2M10 2H5M10 2v5"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- CARD: Example Training 2 -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">AI Tools Onboarding Program</div>
+          <span class="card-status status-live">Live</span>
+        </div>
+        <p class="card-desc">Recurring onboarding session for new hires covering the AI tools available at Psycho Bunny, how to use them safely, and when to escalate.</p>
+        <div class="metrics">
+          <span class="metric-pill"><span class="dot dot-people"></span> 16 people onboarded</span>
+          <span class="metric-pill"><span class="dot dot-cost"></span> Reduces tool misuse</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-date">Ongoing · Monthly</span>
+          <a class="card-link" href="#">
+            View Materials
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10L10 2M10 2H5M10 2v5"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- CARD: Example Training 3 -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-title">AI Strategy for Leaders</div>
+          <span class="card-status status-progress">In Progress</span>
+        </div>
+        <p class="card-desc">Executive-focused session on AI trends, risk, and strategic opportunity. Helps department heads identify where AI can unlock value in their teams.</p>
+        <div class="metrics">
+          <span class="metric-pill"><span class="dot dot-people"></span> Target: 8 leaders</span>
+          <span class="metric-pill"><span class="dot dot-rev"></span> Strategic alignment</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-date">Est. Q2 2026</span>
+          <a class="card-link" href="#">
+            View Draft
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10L10 2M10 2H5M10 2v5"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer class="footer">
+    Psycho Bunny · AI Initiative Tracker · Maintained by Maya Botti
+  </footer>
+
+</body>
+</html>
