@@ -282,6 +282,92 @@
     .card-link[href="#"] { opacity: 0.5; pointer-events: none; }
     body.editing .card-link[href="#"] { opacity: 1; pointer-events: auto; }
 
+    /* ── Backlog Table ── */
+    .backlog-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    .backlog-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .backlog-table thead tr {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .backlog-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .backlog-table th.col-del { width: 32px; padding: 0; }
+    .backlog-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .backlog-table tbody tr:last-child { border-bottom: none; }
+    .backlog-table tbody tr:hover { background: var(--surface2); }
+    .backlog-table td {
+      padding: 12px 16px;
+      vertical-align: top;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .backlog-table td:first-child { font-weight: 600; }
+    .backlog-table td.col-del {
+      padding: 0;
+      width: 32px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .backlog-table td[contenteditable="true"] {
+      outline: none;
+      background: rgba(124,106,245,0.06);
+      border: 1px dashed rgba(124,106,245,0.35);
+      border-radius: 4px;
+      min-width: 80px;
+    }
+    .backlog-table td[contenteditable="true"]:focus {
+      background: rgba(124,106,245,0.12);
+      border-color: var(--accent);
+    }
+    .backlog-table td[contenteditable="true"]:empty:before {
+      content: attr(data-placeholder);
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .del-row-btn {
+      display: none;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(226,92,138,0.12);
+      border: 1px solid rgba(226,92,138,0.25);
+      color: var(--accent2);
+      font-size: 14px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      transition: background 0.2s;
+    }
+    .del-row-btn:hover { background: rgba(226,92,138,0.28); }
+    body.editing .del-row-btn { display: flex; }
+    .backlog-empty {
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    #backlog-table:not(:empty) + .backlog-empty,
+    .backlog-table tbody:not(:empty) ~ * .backlog-empty { display: none; }
+
     /* ── Footer ── */
     .footer {
       max-width: 1100px; margin: 0 auto; padding-top: 32px;
@@ -376,6 +462,36 @@
     <button class="add-card-btn" onclick="addCard('training')">+ Add Training Initiative</button>
   </section>
 
+  <!-- SECTION: BACKLOG -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(245,197,66,0.12)">💡</div>
+      <h2 class="section-title">Idea Backlog</h2>
+      <span class="section-count" id="backlog-count">0 ideas</span>
+    </div>
+
+    <div class="backlog-wrap">
+      <table class="backlog-table" id="backlog-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Current Process</th>
+            <th>Pain Points</th>
+            <th>How AI Could Help</th>
+            <th>Raised By</th>
+            <th class="col-del"></th>
+          </tr>
+        </thead>
+        <tbody id="backlog-body">
+          <!-- rows added here -->
+        </tbody>
+      </table>
+      <div class="backlog-empty" id="backlog-empty">No ideas yet — click "Edit Page" then "+ Add Idea" to get started.</div>
+    </div>
+
+    <button class="add-card-btn" id="add-idea-btn" onclick="addBacklogRow()">+ Add Idea</button>
+  </section>
+
   <footer class="footer">
     Psycho Bunny · AI Initiative Tracker · Maintained by Maya Botti
   </footer>
@@ -464,12 +580,67 @@
     save();
   }
 
+  // ── Backlog table ─────────────────────────────────────────
+  const BACKLOG_COLS = [
+    { key: 'title',     placeholder: 'Idea name' },
+    { key: 'process',   placeholder: 'What do people do today?' },
+    { key: 'pain',      placeholder: 'What is frustrating or slow?' },
+    { key: 'aiHelp',    placeholder: 'How could AI improve this?' },
+    { key: 'raisedBy',  placeholder: 'Name / team' },
+  ];
+
+  function addBacklogRow(data) {
+    const tbody = document.getElementById('backlog-body');
+    const editing = document.body.classList.contains('editing');
+    const tr = document.createElement('tr');
+    tr.innerHTML = BACKLOG_COLS.map(c =>
+      `<td contenteditable="${editing}" data-col="${c.key}" data-placeholder="${c.placeholder}">${esc(data?.[c.key] || '')}</td>`
+    ).join('') +
+    `<td class="col-del"><button class="del-row-btn" onclick="deleteBacklogRow(this)" title="Delete row">×</button></td>`;
+    tbody.appendChild(tr);
+    updateBacklogEmpty();
+    updateCounts();
+    if (editing) tr.querySelector('td').focus();
+    save();
+  }
+
+  function deleteBacklogRow(btn) {
+    if (!confirm('Delete this idea?')) return;
+    btn.closest('tr').remove();
+    updateBacklogEmpty();
+    updateCounts();
+    save();
+  }
+
+  function updateBacklogEmpty() {
+    const n = document.getElementById('backlog-body').querySelectorAll('tr').length;
+    document.getElementById('backlog-empty').style.display = n === 0 ? 'block' : 'none';
+  }
+
+  function serializeBacklog() {
+    return Array.from(document.getElementById('backlog-body').querySelectorAll('tr')).map(tr => {
+      const obj = {};
+      BACKLOG_COLS.forEach(c => {
+        const td = tr.querySelector(`[data-col="${c.key}"]`);
+        obj[c.key] = td ? td.textContent : '';
+      });
+      return obj;
+    });
+  }
+
+  function restoreBacklog(rows) {
+    document.getElementById('backlog-body').innerHTML = '';
+    (rows || []).forEach(r => addBacklogRow(r));
+  }
+
   // ── Update section counts ─────────────────────────────────
   function updateCounts() {
     ['tools','training'].forEach(s => {
       const n = document.getElementById(s+'-grid').querySelectorAll('.card').length;
       document.getElementById(s+'-count').textContent = n + (n === 1 ? ' initiative' : ' initiatives');
     });
+    const nb = document.getElementById('backlog-body').querySelectorAll('tr').length;
+    document.getElementById('backlog-count').textContent = nb + (nb === 1 ? ' idea' : ' ideas');
   }
 
   // ── Edit mode toggle ──────────────────────────────────────
@@ -481,7 +652,7 @@
     btn.classList.toggle('active', on);
 
     // Enable/disable contenteditable on all editable fields
-    document.querySelectorAll('[data-key], .card-title, .card-desc, .card-date, .metric-pill [contenteditable], .card-link-url').forEach(el => {
+    document.querySelectorAll('[data-key], .card-title, .card-desc, .card-date, .metric-pill [contenteditable], .card-link-url, #backlog-body td[data-col]').forEach(el => {
       el.contentEditable = on ? 'true' : 'false';
     });
 
@@ -503,6 +674,7 @@
       summary: {},
       tools: serializeGrid('tools-grid'),
       training: serializeGrid('training-grid'),
+      backlog: serializeBacklog(),
       lastUpdated: document.querySelector('[data-key="lastUpdated"]').textContent,
     };
     ['totalInitiatives','totalInitiativesSub','hoursSaved','hoursSavedSub',
@@ -554,8 +726,10 @@
       });
       if (data.tools)    restoreGrid('tools-grid',    data.tools,    'Open Tool');
       if (data.training) restoreGrid('training-grid', data.training, 'View Materials');
+      if (data.backlog)  restoreBacklog(data.backlog);
     } catch(e) { console.warn('Could not restore saved data', e); }
     updateCounts();
+    updateBacklogEmpty();
   }
 
   function restoreGrid(gridId, cards, defaultLabel) {
