@@ -668,6 +668,40 @@
     if (!on) save();
   }
 
+  // ── Auto-calculate Hours Saved / Month ───────────────────
+  // Parses metric pill text across both sections for hour values.
+  // Understands: h/hr/hrs/hour/hours + per day/week/wk/month/year/yr
+  // Examples matched: "~8h saved/month", "5h/wk", "10 hrs per week", "2h/day"
+  function recalcHours() {
+    const re = /~?(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hours?)\b[^\/\n]*(?:\/|\bper\s*)(day|week|wk|month|mo|year|yr|annually)/i;
+    const TO_MONTH = { day: 22, week: 4.33, wk: 4.33, month: 1, mo: 1, year: 1/12, yr: 1/12, annually: 1/12 };
+
+    let total = 0;
+    let found = false;
+
+    document.querySelectorAll('#tools-grid .metric-pill, #training-grid .metric-pill').forEach(pill => {
+      const text = pill.querySelector('[contenteditable]')?.textContent || '';
+      const m = text.match(re);
+      if (m) {
+        const hrs   = parseFloat(m[1]);
+        const unit  = m[2].toLowerCase();
+        const mult  = TO_MONTH[unit] ?? 1;
+        total += hrs * mult;
+        found = true;
+      }
+    });
+
+    const el = document.querySelector('[data-key="hoursSaved"]');
+    if (!el) return;
+    if (found) {
+      const rounded = Math.round(total);
+      el.textContent = '~' + rounded + 'h';
+      el.dataset.auto = 'true';
+    } else if (el.dataset.auto === 'true') {
+      el.textContent = '—';
+    }
+  }
+
   // ── Persistence (localStorage) ────────────────────────────
   function save() {
     const data = {
@@ -681,6 +715,9 @@
      'costSaved','costSavedSub','geminiUsers','geminiUsersSub'].forEach(k => {
       data.summary[k] = document.querySelector('[data-key="'+k+'"]').textContent;
     });
+    recalcHours();
+    // Update hoursSaved in data after recalc so it persists correctly
+    data.summary['hoursSaved'] = document.querySelector('[data-key="hoursSaved"]').textContent;
     localStorage.setItem('pbAIMetrics', JSON.stringify(data));
     flashSaved();
   }
@@ -730,6 +767,7 @@
     } catch(e) { console.warn('Could not restore saved data', e); }
     updateCounts();
     updateBacklogEmpty();
+    recalcHours();
   }
 
   function restoreGrid(gridId, cards, defaultLabel) {
