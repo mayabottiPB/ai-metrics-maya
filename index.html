@@ -702,6 +702,25 @@
     }
   }
 
+  // ── Auto-calculate Est. Cost Saved / Yr ──────────────────
+  // Formula: hours saved/month * 12 * $35
+  function recalcCost() {
+    const hoursEl = document.querySelector('[data-key="hoursSaved"]');
+    const costEl  = document.querySelector('[data-key="costSaved"]');
+    if (!hoursEl || !costEl) return;
+    const match = hoursEl.textContent.match(/(\d+(?:\.\d+)?)/);
+    if (!match || hoursEl.dataset.auto !== 'true') {
+      if (costEl.dataset.auto === 'true') costEl.textContent = '—';
+      return;
+    }
+    const annual = parseFloat(match[1]) * 12 * 35;
+    const formatted = annual >= 1000
+      ? '$' + Math.round(annual / 1000) + 'K'
+      : '$' + Math.round(annual);
+    costEl.textContent = formatted;
+    costEl.dataset.auto = 'true';
+  }
+
   // ── Persistence (localStorage) ────────────────────────────
   function save() {
     const data = {
@@ -716,8 +735,10 @@
       data.summary[k] = document.querySelector('[data-key="'+k+'"]').textContent;
     });
     recalcHours();
-    // Update hoursSaved in data after recalc so it persists correctly
+    recalcCost();
+    // Update auto-calculated fields in data after recalc so they persist correctly
     data.summary['hoursSaved'] = document.querySelector('[data-key="hoursSaved"]').textContent;
+    data.summary['costSaved']  = document.querySelector('[data-key="costSaved"]').textContent;
     localStorage.setItem('pbAIMetrics', JSON.stringify(data));
     flashSaved();
   }
@@ -768,6 +789,7 @@
     updateCounts();
     updateBacklogEmpty();
     recalcHours();
+    recalcCost();
   }
 
   function restoreGrid(gridId, cards, defaultLabel) {
