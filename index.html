@@ -474,11 +474,14 @@
       <table class="backlog-table" id="backlog-table">
         <thead>
           <tr>
-            <th>Title</th>
+            <th>Project Title</th>
             <th>Current Process</th>
             <th>Pain Points</th>
-            <th>How AI Could Help</th>
-            <th>Raised By</th>
+            <th>Department</th>
+            <th>Value</th>
+            <th>Risk</th>
+            <th>Effort</th>
+            <th>Priority</th>
             <th class="col-del"></th>
           </tr>
         </thead>
@@ -582,11 +585,14 @@
 
   // ── Backlog table ─────────────────────────────────────────
   const BACKLOG_COLS = [
-    { key: 'title',     placeholder: 'Idea name' },
-    { key: 'process',   placeholder: 'What do people do today?' },
-    { key: 'pain',      placeholder: 'What is frustrating or slow?' },
-    { key: 'aiHelp',    placeholder: 'How could AI improve this?' },
-    { key: 'raisedBy',  placeholder: 'Name / team' },
+    { key: 'title',      placeholder: 'Project name' },
+    { key: 'process',    placeholder: 'What do people do today?' },
+    { key: 'pain',       placeholder: 'What is frustrating or slow?' },
+    { key: 'department', placeholder: 'e.g. Logistics, Marketing' },
+    { key: 'value',      placeholder: 'e.g. High / $50K saved' },
+    { key: 'risk',       placeholder: 'e.g. Low / Medium / High' },
+    { key: 'effort',     placeholder: 'e.g. Low / Medium / High' },
+    { key: 'priority',   placeholder: 'e.g. P1 / P2 / P3' },
   ];
 
   function addBacklogRow(data) {
