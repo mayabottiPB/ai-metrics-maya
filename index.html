@@ -359,6 +359,51 @@
     }
     .del-row-btn:hover { background: rgba(226,92,138,0.28); }
     body.editing .del-row-btn { display: flex; }
+    /* Links column */
+    .backlog-link-cell { min-width: 140px; }
+    .backlog-link-url {
+      display: none;
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+    body.editing .backlog-link-url { display: block; }
+    body.editing .backlog-link-url[contenteditable="true"] {
+      outline: none;
+      background: rgba(124,106,245,0.06);
+      border: 1px dashed rgba(124,106,245,0.35);
+      border-radius: 4px;
+      padding: 2px 6px;
+      min-height: 24px;
+    }
+    body.editing .backlog-link-url[contenteditable="true"]:focus {
+      background: rgba(124,106,245,0.12);
+      border-color: var(--accent);
+    }
+    body.editing .backlog-link-url:empty:before {
+      content: attr(data-placeholder);
+      color: var(--muted);
+      pointer-events: none;
+    }
+    body.editing .backlog-open-btn { display: none !important; }
+    .backlog-open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(124,106,245,0.3);
+      background: rgba(124,106,245,0.08);
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .backlog-open-btn:hover { background: rgba(124,106,245,0.18); }
+    .backlog-open-btn.hidden { display: none; }
+
     .backlog-empty {
       padding: 40px;
       text-align: center;
@@ -482,6 +527,7 @@
             <th>Risk</th>
             <th>Effort</th>
             <th>Priority</th>
+            <th>Links</th>
             <th class="col-del"></th>
           </tr>
         </thead>
@@ -593,20 +639,41 @@
     { key: 'risk',       placeholder: 'e.g. Low / Medium / High' },
     { key: 'effort',     placeholder: 'e.g. Low / Medium / High' },
     { key: 'priority',   placeholder: 'e.g. P1 / P2 / P3' },
+    { key: 'links',      placeholder: 'Paste a URL...', isLink: true },
   ];
 
   function addBacklogRow(data) {
     const tbody = document.getElementById('backlog-body');
     const editing = document.body.classList.contains('editing');
     const tr = document.createElement('tr');
-    tr.innerHTML = BACKLOG_COLS.map(c =>
-      `<td contenteditable="${editing}" data-col="${c.key}" data-placeholder="${c.placeholder}">${esc(data?.[c.key] || '')}</td>`
-    ).join('') +
+    tr.innerHTML = BACKLOG_COLS.map(c => {
+      if (c.isLink) {
+        const url = data?.[c.key] || '';
+        const hasUrl = url.startsWith('http');
+        return `<td class="backlog-link-cell" data-col="${c.key}">` +
+          `<a class="backlog-open-btn${hasUrl ? '' : ' hidden'}" href="${esc(url)}" target="_blank">Open ↗</a>` +
+          `<span class="backlog-link-url" contenteditable="${editing}" data-placeholder="${c.placeholder}" oninput="syncBacklogLink(this)">${esc(url)}</span>` +
+          `</td>`;
+      }
+      return `<td contenteditable="${editing}" data-col="${c.key}" data-placeholder="${c.placeholder}">${esc(data?.[c.key] || '')}</td>`;
+    }).join('') +
     `<td class="col-del"><button class="del-row-btn" onclick="deleteBacklogRow(this)" title="Delete row">×</button></td>`;
     tbody.appendChild(tr);
     updateBacklogEmpty();
     updateCounts();
     if (editing) tr.querySelector('td').focus();
+    save();
+  }
+
+  function syncBacklogLink(span) {
+    const url = span.textContent.trim();
+    const btn = span.closest('td').querySelector('.backlog-open-btn');
+    if (url.startsWith('http')) {
+      btn.href = url;
+      btn.classList.remove('hidden');
+    } else {
+      btn.classList.add('hidden');
+    }
     save();
   }
 
@@ -628,7 +695,12 @@
       const obj = {};
       BACKLOG_COLS.forEach(c => {
         const td = tr.querySelector(`[data-col="${c.key}"]`);
-        obj[c.key] = td ? td.textContent : '';
+        if (!td) { obj[c.key] = ''; return; }
+        if (c.isLink) {
+          obj[c.key] = td.querySelector('.backlog-link-url')?.textContent || '';
+        } else {
+          obj[c.key] = td.textContent;
+        }
       });
       return obj;
     });
@@ -658,7 +730,7 @@
     btn.classList.toggle('active', on);
 
     // Enable/disable contenteditable on all editable fields
-    document.querySelectorAll('[data-key], .card-title, .card-desc, .card-date, .metric-pill [contenteditable], .card-link-url, #backlog-body td[data-col]').forEach(el => {
+    document.querySelectorAll('[data-key], .card-title, .card-desc, .card-date, .metric-pill [contenteditable], .card-link-url, #backlog-body td[data-col]:not(.backlog-link-cell), #backlog-body .backlog-link-url').forEach(el => {
       el.contentEditable = on ? 'true' : 'false';
     });
 
